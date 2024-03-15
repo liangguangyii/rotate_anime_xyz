@@ -59,5 +59,29 @@ module fileIO
         close(10)
         
     end subroutine readxyzs
+    
+    subroutine writexyzs(natoms, nsteps, elements, xyzcoords)
+        character(len=2), intent(in):: elements(:)
+        integer, intent(in):: natoms, nsteps
+        real(kind=8), intent(in):: xyzcoords(:, :)
+        
+        character(len=200) :: filename
+        integer:: istep, iatom
+        
+        filename = "rotated.xyz"
+        
+        open(unit=10, file=filename, status="replace")
+            
+            do istep = 1, nsteps
+                write(10,*) natoms
+                write(10,*) "Step ", istep
+                do iatom = 1, natoms
+                    write(10, "(A2,3f18.10)") elements(iatom), xyzcoords(:, (istep-1)*natoms+iatom)
+                end do 
+            end do
+        
+        close(10)
+
+    end subroutine writexyzs
 
 end module fileIO
