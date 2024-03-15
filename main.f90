@@ -1,15 +1,38 @@
 program main
     use fileIO
+    use rotatexyz
     
     implicit none
     
+    integer:: natoms, nsteps, dim, atomindex1, atomindex2
+    integer:: istep, iatom
     character(len=200):: filename
     character(len=2), allocatable:: elements(:)
-    real(kind=8), allocatable:: xyzcoords(:, :) 
+    real(kind=8), allocatable:: xyzcoords(:, :), xyztemp(:, :)
+    
+    real(kind=8), dimension(3):: veca, vecb, veca0, vecb0
     
     filename = 'pos.xyz'
+    atomindex1 = 8      ! apex of pyramid -> (0,0,z)
+    atomindex2 = 10     ! Pt atoms -> (x,0,z)
     
-    call readxyzs(filename, elements, xyzcoords)
+    veca0 = (/ 0D0, 0D0, 1D0 /)
     
+    
+    
+    call readxyzs(filename, elements, xyzcoords, natoms, nsteps)
+    
+    dim = natoms*nsteps
+    
+    
+    allocate(xyztemp(3, natoms))
+    do istep = 1, nsteps
+        veca(1:3) = xyzcoords(1:3, (istep-1)*natoms + atomindex1)
+        xyztemp = xyzcoords(:, (istep-1)*natoms + 1: istep*natoms)
+        call rotate_a2b(natoms, veca, veca0, xyztemp)
+        xyzcoords(:, (istep-1)*natoms + 1: istep*natoms) = xyztemp
+    end do
+    
+    call writexyzs(natoms, nsteps, elements, xyzcoords)
     
 end program main
