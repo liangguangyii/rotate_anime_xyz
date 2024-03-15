@@ -28,14 +28,20 @@ program main
     
     allocate(xyztemp(3, natoms))
     do istep = 1, nsteps
-        veca(1:3) = xyzcoords(1:3, (istep-1)*natoms + atomindex1)
-        ! not considerding xy components
-        vecb(1:3) = xyzcoords(1:3, (istep-1)*natoms + atomindex2)
-        vecb(3) = 0D0
         
+        !veca -> veca0
+        veca(1:3) = xyzcoords(1:3, (istep-1)*natoms + atomindex1)
         xyztemp = xyzcoords(:, (istep-1)*natoms + 1: istep*natoms)
         call rotate_a2b(natoms, veca, veca0, xyztemp)
+        
+        !vecb -> vecb0
+        !MUST BASED on xyztemp, i.e. the coordinates after veca rotation!!
+        ! not considerding xy components
+        vecb(1:3) = xyztemp(1:3, atomindex2)
+        vecb(3) = 0D0
+        
         call rotate_a2b(natoms, vecb, vecb0, xyztemp)
+        
         xyzcoords(:, (istep-1)*natoms + 1: istep*natoms) = xyztemp
     end do
     
