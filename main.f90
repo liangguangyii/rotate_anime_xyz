@@ -17,6 +17,7 @@ program main
     atomindex2 = 10     ! Pt atoms -> (x,0,z)
     
     veca0 = (/ 0D0, 0D0, 1D0 /)
+    vecb0 = (/ 1D0, 0D0, 0D0 /)
     
     
     
@@ -28,8 +29,13 @@ program main
     allocate(xyztemp(3, natoms))
     do istep = 1, nsteps
         veca(1:3) = xyzcoords(1:3, (istep-1)*natoms + atomindex1)
+        ! not considerding xy components
+        vecb(1:3) = xyzcoords(1:3, (istep-1)*natoms + atomindex2)
+        vecb(3) = 0D0
+        
         xyztemp = xyzcoords(:, (istep-1)*natoms + 1: istep*natoms)
         call rotate_a2b(natoms, veca, veca0, xyztemp)
+        call rotate_a2b(natoms, vecb, vecb0, xyztemp)
         xyzcoords(:, (istep-1)*natoms + 1: istep*natoms) = xyztemp
     end do
     
