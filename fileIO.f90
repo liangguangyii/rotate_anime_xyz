@@ -4,15 +4,17 @@ module fileIO
     
     contains
     
-    subroutine readxyzs(filename, elements, xyzcoords)
+    subroutine readxyzs(filename, elements, xyzcoords, natoms, nsteps)
         character(len=200), intent(in) :: filename
+        
+        integer, intent(out):: natoms, nsteps
         character(len=2), allocatable, intent(out):: elements(:)
         real(kind=8), allocatable, intent(out):: xyzcoords(:, :)
         
         character:: element*2, ctemp*2
         
         
-        integer:: natoms, nlines, nsteps, ierr, i, istep, iatom
+        integer:: nlines, ierr, i, istep, iatom
         
         real(kind=8):: rtemp
         
@@ -44,13 +46,13 @@ module fileIO
         
         nsteps = nlines/(natoms+2)
         
-        allocate(xyzcoords(natoms*nsteps, 3))
+        allocate(xyzcoords(3, natoms*nsteps))
         
         do istep = 1, nsteps
             read(10,*)
             read(10,*)
             do iatom = 1, natoms
-                read(10,"(A2,3f18.10)") ctemp, xyzcoords((istep-1)*natoms+iatom, :)
+                read(10,"(A2,3f18.10)") ctemp, xyzcoords(:, (istep-1)*natoms+iatom)
             end do
         end do
         
